@@ -1,0 +1,3 @@
+// config.txtというファイル名にして、値を入力してください。
+token = "xoxp-xxxxxxxx"
+channel = "XXXXXXXXX"
