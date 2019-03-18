@@ -98,7 +98,13 @@ class AttachmentDownloader {
                 if (readStartTs == null) {
                     readStartTs = ts
                 }
-                message.files?.each { file -> eachFile(file) }
+                /*
+                ファイルへのコメントや、Google Spreadsheetへのリンクはupload=falseになる。
+                他のチャネルにアップされた画像のリンクもupload=falseになってしまうが、許容する。
+                 */
+                if (message.upload) {
+                    message.files?.each { file -> eachFile(file) }
+                }
                 latest = ts
                 state.readFrom = ts
                 saveState(state)
@@ -145,6 +151,7 @@ class AttachmentDownloader {
             logger.debug("ダウンロードしました: {}", downloadUrl)
             logResponse(response)
         } else {
+            // message.upload=true でチェックしていれば、この分岐には到達しないはず。
             logger.debug("url_private_download が無い. {}", file)
         }
     }
