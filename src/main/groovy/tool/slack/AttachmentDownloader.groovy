@@ -42,7 +42,6 @@ class AttachmentDownloader {
     private DateTimeFormatter dateTimeFormatter
 
     void execute() {
-        logger.debug("START")
         client = createHttpClient()
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").withZone(ZoneId.systemDefault())
         saveDir = Path.of(savePath).resolve(channel).toAbsolutePath()
