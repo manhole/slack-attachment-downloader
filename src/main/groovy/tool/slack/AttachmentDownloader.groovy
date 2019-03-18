@@ -119,7 +119,18 @@ class AttachmentDownloader {
 
             def fileTimestamp = Instant.ofEpochSecond(file.timestamp)
             def name = dateTimeFormatter.format(fileTimestamp) + "-" + file.name
-            def saveFilePath = saveDir.resolve(name)
+            def saveFilePath
+            try {
+                saveFilePath = saveDir.resolve(name)
+            } catch (e) {
+                // "foo32*32.png" といったファイル名はファイルシステムに保存できない
+                logger.debug("{}: {}, <{}>", e.getClass().getName(), e.getMessage(), name)
+                int pos = downloadUrl.lastIndexOf('/')
+                String namePart = downloadUrl.substring(pos + 1)
+                name = dateTimeFormatter.format(fileTimestamp) + "-" + namePart
+                saveFilePath = saveDir.resolve(name)
+            }
+
             // 上書きは嫌なので念の為確認しておきます
             assert !Files.exists(saveFilePath)
 
