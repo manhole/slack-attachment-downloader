@@ -124,7 +124,8 @@ class AttachmentDownloader {
             assert file.timestamp == file.created
 
             def fileTimestamp = Instant.ofEpochSecond(file.timestamp)
-            def name = dateTimeFormatter.format(fileTimestamp) + "-" + file.name
+            String namePart = file.name
+            def name = dateTimeFormatter.format(fileTimestamp) + "-" + namePart
             def saveFilePath
             try {
                 saveFilePath = saveDir.resolve(name)
@@ -132,12 +133,19 @@ class AttachmentDownloader {
                 // "foo32*32.png" といったファイル名はファイルシステムに保存できない
                 logger.debug("{}: {}, <{}>", e.getClass().getName(), e.getMessage(), name)
                 int pos = downloadUrl.lastIndexOf('/')
-                String namePart = downloadUrl.substring(pos + 1)
+                namePart = downloadUrl.substring(pos + 1)
                 name = dateTimeFormatter.format(fileTimestamp) + "-" + namePart
                 saveFilePath = saveDir.resolve(name)
             }
 
             // 上書きは嫌なので念の為確認しておきます
+            if (Files.exists(saveFilePath)) {
+                // createdだと被ることがあるので、idを付けます
+                name = dateTimeFormatter.format(fileTimestamp) + "-" + namePart + "-${file.id}"
+                saveFilePath = saveDir.resolve(name)
+                logger.debug("ファイル名が被ったのでidを付けました: {}", saveFilePath)
+            }
+            // idを付けても被ったらお手上げ
             assert !Files.exists(saveFilePath)
 
             HttpRequest request = HttpRequest.newBuilder()
