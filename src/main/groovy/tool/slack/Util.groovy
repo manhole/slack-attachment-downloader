@@ -15,10 +15,14 @@ class Util {
     private static final Logger logger = LoggerFactory.getLogger(Util.class)
 
     static void logResponse(HttpResponse<String> response) {
-        logger.debug("status {}", response.statusCode())
+        if (!logger.isDebugEnabled()) {
+            return
+        }
+
+        def sw = new StringWriter()
+        sw << "status ${response.statusCode()}"
 
         HttpHeaders headers = response.headers()
-        def sw = new StringWriter()
         headers.map().each { entry ->
             def values = entry.value
             def v
@@ -28,8 +32,8 @@ class Util {
                 v = values.toString()
             }
 
-            sw.write(System.lineSeparator())
-            sw.write(" < ${entry.key}=${v}")
+            sw << System.lineSeparator()
+            sw << " < ${entry.key}=${v}"
         }
         logger.debug("{}", sw.toString())
     }
