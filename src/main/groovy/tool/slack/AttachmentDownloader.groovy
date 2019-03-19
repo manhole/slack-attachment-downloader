@@ -154,8 +154,11 @@ class AttachmentDownloader {
                     .header("Authorization", "Bearer ${token}")
                     .GET()
                     .build()
+
+            def tmpFile = saveFilePath.resolveSibling(saveFilePath.getFileName().toString() + ".downloading")
             logger.debug("ダウンロードします  : {}, {}", downloadUrl, name)
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofFile(saveFilePath))
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofFile(tmpFile))
+            Files.move(tmpFile, saveFilePath, StandardCopyOption.ATOMIC_MOVE)
             logger.debug("ダウンロードしました: {}", downloadUrl)
             logResponse(response)
         } else {
