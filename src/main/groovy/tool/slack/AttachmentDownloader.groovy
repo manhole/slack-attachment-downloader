@@ -10,6 +10,7 @@ import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -52,28 +53,26 @@ class AttachmentDownloader {
             Files.createDirectories(saveDir)
         }
         stateFilePath = saveDir.resolve("_state.json")
-        final State state = readState()
+        State state = readState()
 
-        if (state.createdAt == null) {
-            state.createdAt = channelInfo()
+        if (state == null) {
+            state = new State()
             saveState(state)
+            def info = channelInfo()
+            logger.debug("{}", info)
         }
 
-        if (!state.alreadyProceededFromChannelCreated) {
-            crawlFromChannelCreated(state)
-        }
+        crawlChannel(state)
     }
 
-    private void crawlFromChannelCreated(State state) {
-        String latest = state.readFrom
-        String readStartTs = null
+    private void crawlChannel(State state) {
         boolean hasMore = true
         while (hasMore) {
             def params = [:]
             params["token"] = this.token
             params["channel"] = this.channel
-            params["latest"] = latest
-            //params["oldest"] = state.readTo
+            params["latest"] = state.readingPosition
+            params["oldest"] = state.oldest
             //params["count"] = "1"
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -86,17 +85,17 @@ class AttachmentDownloader {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString())
             logResponse(response)
 
-            def bodyString = response.body()
-
             def slurper = new JsonSlurper()
+            def bodyString = response.body()
             def body = slurper.parseText(bodyString)
             assert body.ok
 
             body.messages.each { message ->
                 logger.debug("message: {}", message)
                 def ts = message.ts
-                if (readStartTs == null) {
-                    readStartTs = ts
+                assert ts != null
+                if (state.latest == null) {
+                    state.latest = ts
                 }
                 /*
                 ファイルへのコメントや、Google Spreadsheetへのリンクはupload=falseになる。
@@ -105,15 +104,18 @@ class AttachmentDownloader {
                 if (message.upload) {
                     message.files?.each { file -> eachFile(file) }
                 }
-                latest = ts
-                state.readFrom = ts
+                state.readingPosition = ts
                 saveState(state)
             }
 
             hasMore = body.has_more
         }
-        state.readTo = readStartTs
-        state.alreadyProceededFromChannelCreated = true
+
+        if (state.latest) {
+            state.oldest = state.latest
+            state.latest = null
+        }
+        state.readingPosition = null
         saveState(state)
     }
 
@@ -167,7 +169,7 @@ class AttachmentDownloader {
         }
     }
 
-    private String channelInfo() {
+    private Object channelInfo() {
         def params = [:]
         params["token"] = this.token
         params["channel"] = this.channel
@@ -188,12 +190,12 @@ class AttachmentDownloader {
         def slurper = new JsonSlurper()
         def body = slurper.parseText(bodyString)
 
-        return body.channel.created
+        return body.channel
     }
 
     private State readState() {
         if (!Files.exists(stateFilePath)) {
-            return new State()
+            return null
         }
         return mapper.readValue(stateFilePath.toFile(), State)
     }
