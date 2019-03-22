@@ -41,6 +41,7 @@ class AttachmentDownloader {
     private Path saveDir
     private Path stateFilePath
     private DateTimeFormatter dateTimeFormatter
+    private slurper = new JsonSlurper()
 
     void execute() {
         client = createHttpClient()
@@ -85,7 +86,6 @@ class AttachmentDownloader {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString())
             logResponse(response)
 
-            def slurper = new JsonSlurper()
             def bodyString = response.body()
             def body = slurper.parseText(bodyString)
             assert body.ok
@@ -187,7 +187,6 @@ class AttachmentDownloader {
         def bodyString = response.body()
         logger.debug("channelInfo: {}", bodyString)
 
-        def slurper = new JsonSlurper()
         def body = slurper.parseText(bodyString)
 
         return body.channel
