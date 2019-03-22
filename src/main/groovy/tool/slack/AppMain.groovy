@@ -9,11 +9,13 @@ class AppMain {
 
     static void main(String[] args) {
         logger.debug("START")
-        URL resource = Thread.currentThread().getContextClassLoader().getResource("config.txt")
-        ConfigObject config = new ConfigSlurper().parse(resource)
+        String token = System.getenv("TOKEN")
+        String channel =  System.getenv("CHANNEL")
+        logger.debug("token: {}", token)
+        logger.debug("channel: {}", channel)
 
         try {
-            new AttachmentDownloader(token: config.token, channel: config.channel, savePath: "downloads").execute()
+            new AttachmentDownloader(token: token, channel: channel, savePath: "downloads").execute()
         } catch (Throwable e) {
             logger.error("error", e)
         }
