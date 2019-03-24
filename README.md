@@ -1,4 +1,10 @@
-## Slack API
+# slack attachment downloader
+
+Slackの指定したチャネルにアップされている添付ファイルを、指定したディレクトリへダウンロードします。
+
+## セットアップ
+
+### Slack API
 
 https://api.slack.com/apps
 
@@ -21,23 +27,25 @@ https://api.slack.com/apps
 `OAuth Access Token` に文字列が表示されるようになるので、この文字列を記録します。(後で使います)
 
 
-
-## docker
-
-### build
+### docker build
 
 ```
 docker build -t xxx/slack-attachment-downloader .
 ```
 
-### run
+## 使い方
 
-環境変数 `TOKEN` と `CHANNEL` を指定してください。
+環境変数 `TOKEN`, `CHANNEL`, `PUBLIC` を指定してください。
+
+- `TOKEN` ... slackのサイトで作成したOAuth Tokenです。xoxp-xxxxx〜 という形式です。
+- `CHANNEL` ... 取得対象のチャネルIDです。チャネルURLの末尾の文字列です。(https://workspacename.slack.com/messages/XXXXXXXXX ← ここ)
+- `PUBLIC` ... 公開チャネルならtrueを、プライベートチャネルならfalseを指定します。
 
 ```
 docker run --rm -it \
     -e TOKEN=xoxp-YOUR_TOKEN \
     -e CHANNEL=YOUE_CHANNEL_ID \
+    -e PUBLIC=false \
     -v $(PWD)/downloads:/app/downloads \
     -v $(PWD)/out/log:/app/log \
     xxx/slack-attachment-downloader \
