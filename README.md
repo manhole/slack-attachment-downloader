@@ -1,3 +1,27 @@
+## Slack API
+
+https://api.slack.com/apps
+
+`Create New App` から、アプリ名と使用するworkspaceを選択する。
+
+
+`Add features and functionality` > `Permissions`
+
+`Scopes` セクションで、
+
+- `channels.history`
+- `files:read`
+- `groups:history`
+- `groups:read`
+
+を追加します。
+
+`OAuth Tokens & Redirect URLs` から `Install App to Workspace` します。
+
+`OAuth Access Token` に文字列が表示されるようになるので、この文字列を記録します。(後で使います)
+
+
+
 ## docker
 
 ### build
