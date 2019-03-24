@@ -32,20 +32,38 @@ class AttachmentDownloader {
     // https://api.slack.com/methods/channels.info
     static final String CHANNELS_INFO = "https://slack.com/api/channels.info"
 
+    // https://api.slack.com/methods/groups.history
+    static final String GROUPS_HISTORY = "https://slack.com/api/groups.history"
+    // https://api.slack.com/methods/groups.info
+    static final String GROUPS_INFO = "https://slack.com/api/groups.info"
+
     private String token
     private String channel
+    private boolean publicChannel
     private String savePath
 
     private final ObjectMapper mapper = new ObjectMapper()
+    private final JsonSlurper slurper = new JsonSlurper()
+
     private HttpClient client
     private Path saveDir
     private Path stateFilePath
     private DateTimeFormatter dateTimeFormatter
-    private slurper = new JsonSlurper()
+    private URI historyApi
+    private URI infoApi
 
     void execute() {
         client = createHttpClient()
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").withZone(ZoneId.systemDefault())
+
+        if (publicChannel) {
+            historyApi = URI.create(CHANNELS_HISTORY)
+            infoApi = URI.create(CHANNELS_INFO)
+        } else {
+            historyApi = URI.create(GROUPS_HISTORY)
+            infoApi = URI.create(GROUPS_INFO)
+        }
+
         saveDir = Path.of(savePath).resolve(channel).toAbsolutePath()
         logger.debug("saveDir: {}", saveDir)
 
@@ -58,7 +76,6 @@ class AttachmentDownloader {
 
         if (state == null) {
             state = new State()
-            saveState(state)
             def info = channelInfo()
             logger.debug("{}", info)
         }
@@ -77,7 +94,7 @@ class AttachmentDownloader {
             //params["count"] = "1"
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(CHANNELS_HISTORY))
+                    .uri(historyApi)
                     .timeout(Duration.ofMinutes(2))
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .POST(HttpRequest.BodyPublishers.ofString(toQueryString(params), StandardCharsets.UTF_8))
@@ -175,7 +192,7 @@ class AttachmentDownloader {
         params["channel"] = this.channel
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(CHANNELS_INFO))
+                .uri(infoApi)
                 .timeout(Duration.ofMinutes(2))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .POST(HttpRequest.BodyPublishers.ofString(toQueryString(params), StandardCharsets.UTF_8))
