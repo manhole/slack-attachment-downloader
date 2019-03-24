@@ -11,5 +11,4 @@ RUN chown -R 1000:1000 /app
 USER 1000
 WORKDIR /app
 
-ENV GRADLE_USER_HOME /home/gradle/gradle-cache
-RUN gradle compileGroovy
+RUN gradle shadowJar

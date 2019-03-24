@@ -41,5 +41,5 @@ docker run --rm -it \
     -v $(PWD)/downloads:/app/downloads \
     -v $(PWD)/out/log:/app/log \
     xxx/slack-attachment-downloader \
-    gradle run
+    java -jar build/libs/slack-attachment-downloader-all.jar
 ```
