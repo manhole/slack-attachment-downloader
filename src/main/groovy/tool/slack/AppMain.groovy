@@ -17,6 +17,12 @@ class AppMain {
         logger.debug("channel: {}", channel)
         logger.debug("public: {}", publicChannel)
 
+        if (!token) {
+            throw new IllegalArgumentException("token")
+        }
+        if (!channel) {
+            throw new IllegalArgumentException("channel")
+        }
         try {
             new AttachmentDownloader(
                     token: token,
