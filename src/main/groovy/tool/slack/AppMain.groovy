@@ -1,21 +1,16 @@
 package tool.slack
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 class AppMain {
 
-    private static final Logger logger = LoggerFactory.getLogger(AppMain)
-
     static void main(String[] args) {
-        logger.debug("START")
+        println("START")
         String token = System.getenv("TOKEN")
         String channel = System.getenv("CHANNEL")
         String publicChannelStr = System.getenv("PUBLIC")
         boolean publicChannel = Boolean.parseBoolean(publicChannelStr)
-        logger.debug("token: {}", token)
-        logger.debug("channel: {}", channel)
-        logger.debug("public: {}", publicChannel)
+        println("token: ${token}")
+        println("channel:${channel}")
+        println("public: ${publicChannel}")
 
         if (!token) {
             throw new IllegalArgumentException("token")
@@ -31,8 +26,8 @@ class AppMain {
                     savePath: "downloads",
             ).execute()
         } catch (Throwable e) {
-            logger.error("error", e)
+            e.printStackTrace()
         }
-        logger.debug("END")
+        println("END")
     }
 }

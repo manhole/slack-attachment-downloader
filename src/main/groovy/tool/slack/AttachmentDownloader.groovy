@@ -1,8 +1,8 @@
 package tool.slack
 
-import static tool.slack.Util.createHttpClient
-import static tool.slack.Util.logResponse
-import static tool.slack.Util.toQueryString
+//import static tool.slack.Util.createHttpClient
+//import static tool.slack.Util.logResponse
+//import static tool.slack.Util.toQueryString
 
 //import java.net.http.HttpClient
 //import java.net.http.HttpRequest
@@ -16,16 +16,13 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 import com.fasterxml.jackson.databind.ObjectMapper
 
 import groovy.json.JsonSlurper
 
 class AttachmentDownloader {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass())
+//    private final Logger logger = LoggerFactory.getLogger(getClass())
 
     // https://api.slack.com/methods/channels.history
     static final String CHANNELS_HISTORY = "https://slack.com/api/channels.history"
@@ -65,10 +62,10 @@ class AttachmentDownloader {
         }
 
         saveDir = Path.of(savePath).resolve(channel).toAbsolutePath()
-        logger.debug("saveDir: {}", saveDir)
+        println("saveDir: ${saveDir}")
 
         if (!Files.exists(saveDir)) {
-            logger.debug("create directory: {}", saveDir)
+            println("create directory: ${saveDir}")
             Files.createDirectories(saveDir)
         }
         stateFilePath = saveDir.resolve("_state.json")
@@ -77,7 +74,7 @@ class AttachmentDownloader {
         if (state == null) {
             state = new State()
 //            def info = channelInfo()
-            logger.debug("{}", info)
+//            println(info)
         }
 
         crawlChannel(state)
@@ -108,7 +105,7 @@ class AttachmentDownloader {
 //            assert body.ok
 //
 //            body.messages.each { message ->
-//                logger.debug("message: {}", message)
+//                println("message: {}", message)
 //                def ts = message.ts
 //                assert ts != null
 //                if (state.latest == null) {
@@ -150,7 +147,7 @@ class AttachmentDownloader {
 //                saveFilePath = saveDir.resolve(name)
 //            } catch (e) {
 //                // "foo32*32.png" といったファイル名はファイルシステムに保存できない
-//                logger.debug("{}: {}, <{}>", e.getClass().getName(), e.getMessage(), name)
+//                println("{}: {}, <{}>", e.getClass().getName(), e.getMessage(), name)
 //                int pos = downloadUrl.lastIndexOf('/')
 //                namePart = downloadUrl.substring(pos + 1)
 //                name = dateTimeFormatter.format(fileTimestamp) + "-" + namePart
@@ -162,7 +159,7 @@ class AttachmentDownloader {
 //                // createdだと被ることがあるので、idを付けます
 //                name = dateTimeFormatter.format(fileTimestamp) + "-" + namePart + "-${file.id}"
 //                saveFilePath = saveDir.resolve(name)
-//                logger.debug("ファイル名が被ったのでidを付けました: {}", saveFilePath)
+//                println("ファイル名が被ったのでidを付けました: {}", saveFilePath)
 //            }
 //            // idを付けても被ったらお手上げ
 //            assert !Files.exists(saveFilePath)
@@ -175,14 +172,14 @@ class AttachmentDownloader {
 //                    .build()
 //
 //            def tmpFile = saveFilePath.resolveSibling(saveFilePath.getFileName().toString() + ".downloading")
-//            logger.debug("ダウンロードします  : {}, {}", downloadUrl, name)
+//            println("ダウンロードします  : {}, {}", downloadUrl, name)
 //            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofFile(tmpFile))
 //            Files.move(tmpFile, saveFilePath, StandardCopyOption.ATOMIC_MOVE)
-//            logger.debug("ダウンロードしました: {}", downloadUrl)
+//            println("ダウンロードしました: {}", downloadUrl)
 //            logResponse(response)
 //        } else {
 //            // message.upload=true でチェックしていれば、この分岐には到達しないはず。
-//            logger.debug("url_private_download が無い. {}", file)
+//            println("url_private_download が無い. {}", file)
 //        }
 //    }
 
@@ -202,7 +199,7 @@ class AttachmentDownloader {
 //        logResponse(response)
 //
 //        def bodyString = response.body()
-//        logger.debug("channelInfo: {}", bodyString)
+//        println("channelInfo: {}", bodyString)
 //
 //        def body = slurper.parseText(bodyString)
 //

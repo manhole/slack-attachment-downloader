@@ -7,12 +7,9 @@ import java.nio.charset.StandardCharsets
 import java.time.Duration
 import java.time.Instant
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 class Util {
 
-    private static final Logger logger = LoggerFactory.getLogger(Util.class)
+//    private static final Logger logger = LoggerFactory.getLogger(Util.class)
 
 //    static void logResponse(HttpResponse<String> response) {
 //        if (!logger.isDebugEnabled()) {
@@ -35,7 +32,7 @@ class Util {
 //            sw << System.lineSeparator()
 //            sw << " < ${entry.key}=${v}"
 //        }
-//        logger.debug("{}", sw.toString())
+//        println("{}", sw.toString())
 //    }
 
     static String toQueryString(Map params) {
