@@ -144,18 +144,11 @@ class AttachmentDownloader {
 
             def fileTimestamp = Instant.ofEpochSecond(file.timestamp)
             String namePart = file.name
+            // see: https://docs.microsoft.com/en-us/windows/desktop/fileio/naming-a-file
+            // "foo32*32.png" といったファイル名はファイルシステムに保存できない
+            namePart = namePart.replaceAll("[<>:\"/\\\\|?*]", "_")
             def name = dateTimeFormatter.format(fileTimestamp) + "-" + namePart
-            def saveFilePath
-            try {
-                saveFilePath = saveDir.resolve(name)
-            } catch (e) {
-                // "foo32*32.png" といったファイル名はファイルシステムに保存できない
-                logger.debug("{}: {}, <{}>", e.getClass().getName(), e.getMessage(), name)
-                int pos = downloadUrl.lastIndexOf('/')
-                namePart = downloadUrl.substring(pos + 1)
-                name = dateTimeFormatter.format(fileTimestamp) + "-" + namePart
-                saveFilePath = saveDir.resolve(name)
-            }
+            def saveFilePath = saveDir.resolve(name)
 
             // 上書きは嫌なので念の為確認しておきます
             if (Files.exists(saveFilePath)) {
