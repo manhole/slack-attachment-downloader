@@ -100,6 +100,7 @@ class AttachmentDownloader {
                     .POST(HttpRequest.BodyPublishers.ofString(toQueryString(params), StandardCharsets.UTF_8))
                     .build()
 
+            // TODO BodyHandlersを自前で実装すればparseしたエンティティで受け取れる
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString())
             logResponse(response)
 
